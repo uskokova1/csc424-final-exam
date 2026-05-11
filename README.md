@@ -1,6 +1,6 @@
 This repo is part of the final exam for csc424, to display knowledge of docker, docker-compose, nginx, and a CI/CD pipeline using github actions.
 
-#DevOps Setup
+# DevOps Setup
 
 ### how to run
 To run the stack locally, just clone the repo, and run docker compose up --build -d in the same directory as the docker-compose.yml file
