@@ -68,7 +68,7 @@ jobs:
           script: |
             mkdir -p ~/app/deploy
             cd ~/app/deploy
-
+            #i know this isnt the best way to do this lol but it works
             cat > docker-compose.yml <<EOF
             services:
               frontend:
@@ -78,6 +78,11 @@ jobs:
                 image: ${{ secrets.DOCKERHUB_USERNAME }}/backend:${{ needs.build-and-push.outputs.sha_short }}
               nginx:
                 image: ${{ secrets.DOCKERHUB_USERNAME }}/nginx:${{ needs.build-and-push.outputs.sha_short }}
+                ports:
+                  - "80:80"
+                depends_on:
+                  - frontend
+                  - backend
             EOF
 
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
