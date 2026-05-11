@@ -7,7 +7,6 @@ on:
 
 jobs:
   build-and-push:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
       sha_short: ${{ steps.vars.outputs.sha_short }}
@@ -59,15 +58,34 @@ jobs:
       sha_short: ${{ steps.vars.outputs.sha_short }}
     steps:
       - name: Pull and redeploy
-        env:
+        uses: appleboy/ssh-action@v1.0.3
+        with:
           SHA: ${{ needs.build-and-push.outputs.sha_short }}
           DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
-        run: |
+          username: ${{secrets.SSH_USER}}
+          key: ${{ secrets.SSH_KEY }}
+          host: ${{secrets.HOSTIP}}
+          script: |
           mkdir -p ~/app/deploy
-          curl -o ~/app/deploy/docker-compose.yml https://raw.githubusercontent.com/innoetech-dev/my-full-stack-docker-app/refs/heads/feature/load-balancer/ci_docker-compose.yml
           cd ~/app/deploy
-          sed -i "s|YOUR_DOCKERHUB_USERNAME|$DOCKER_USER|g" docker-compose.yml
-          sed -i "s|YOUR_SHA|$SHA|g" docker-compose.yml
+
+          # Create docker-compose.yml directly
+          cat > docker-compose.yml <<EOF
+services:
+  frontend:
+    image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ needs.build-and-push.outputs.sha_short }}
+
+  backend:
+    image: ${{ secrets.DOCKERHUB_USERNAME }}/backend:${{ needs.build-and-push.outputs.sha_short }}
+
+  nginx:
+    image: ${{ secrets.DOCKERHUB_USERNAME }}/nginx:${{ needs.build-and-push.outputs.sha_short }}
+EOF
+
+          # Log in to Docker Hub
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+          # Pull new images and run containers
           docker compose pull
           docker compose up -d
-
+          docker image prune -f
