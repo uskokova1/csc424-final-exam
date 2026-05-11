@@ -66,11 +66,11 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           host: ${{secrets.HOSTIP}}
           script: |
-          mkdir -p ~/app/deploy
-          cd ~/app/deploy
+            mkdir -p ~/app/deploy
+            cd ~/app/deploy
 
           # Create docker-compose.yml directly
-          cat > docker-compose.yml <<EOF
+            cat > docker-compose.yml <<EOF
 services:
   frontend:
     image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ needs.build-and-push.outputs.sha_short }}
@@ -82,10 +82,10 @@ services:
     image: ${{ secrets.DOCKERHUB_USERNAME }}/nginx:${{ needs.build-and-push.outputs.sha_short }}
 EOF
 
-          # Log in to Docker Hub
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            # Log in to Docker Hub
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-          # Pull new images and run containers
-          docker compose pull
-          docker compose up -d
-          docker image prune -f
+            # Pull new images and run containers
+            docker compose pull
+            docker compose up -d
+            docker image prune -f
