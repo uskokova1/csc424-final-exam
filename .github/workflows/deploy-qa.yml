@@ -69,7 +69,6 @@ jobs:
             mkdir -p ~/app/deploy
             cd ~/app/deploy
 
-          # Create docker-compose.yml directly
             cat > docker-compose.yml <<EOF
 services:
   frontend:
@@ -82,10 +81,8 @@ services:
     image: ${{ secrets.DOCKERHUB_USERNAME }}/nginx:${{ needs.build-and-push.outputs.sha_short }}
 EOF
 
-            # Log in to Docker Hub
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-            # Pull new images and run containers
             docker compose pull
             docker compose up -d
             docker image prune -f
