@@ -70,16 +70,15 @@ jobs:
             cd ~/app/deploy
 
             cat > docker-compose.yml <<EOF
-services:
-  frontend:
-    image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ needs.build-and-push.outputs.sha_short }}
-
-  backend:
-    image: ${{ secrets.DOCKERHUB_USERNAME }}/backend:${{ needs.build-and-push.outputs.sha_short }}
-
-  nginx:
-    image: ${{ secrets.DOCKERHUB_USERNAME }}/nginx:${{ needs.build-and-push.outputs.sha_short }}
-EOF
+            services:
+              frontend:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ needs.build-and-push.outputs.sha_short }}
+            
+              backend:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/backend:${{ needs.build-and-push.outputs.sha_short }}
+              nginx:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/nginx:${{ needs.build-and-push.outputs.sha_short }}
+            EOF
 
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
